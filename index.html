@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OnlyTwo – El Coliseo</title>
+
+  <!-- Tailwind CDN -->
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
+  <!-- Estilos propios -->
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body class="text-white">
+  <!-- Barra superior + login/logout -->
+  <header class="w-full py-4 bg-black/40 flex justify-between items-center px-6">
+    <h1 class="text-3xl font-extrabold tracking-wider text-yellow-400 select-none">ONLYTWO</h1>
+    <div>
+      <button id="loginBtn"  class="hidden bg-blue-600 hover:bg-blue-700 px-4 py-1 rounded">Iniciar con Google</button>
+      <button id="logoutBtn" class="hidden bg-red-600  hover:bg-red-700  px-4 py-1 rounded">Cerrar sesión</button>
+    </div>
+  </header>
+
+  <main class="max-w-6xl mx-auto p-4">
+    <p class="text-center text-gray-400 mb-8">Dos entran, uno se queda… Bienvenido al Coliseo</p>
+
+    <!-- TRONO -->
+    <section>
+      <h2 class="text-2xl text-center font-bold text-yellow-300 mb-2">👑 EL TRONO</h2>
+      <div class="relative border-4 border-yellow-500 rounded-xl aura overflow-hidden">
+        <iframe id="tronoVideo" class="w-full h-64" src="" allowfullscreen></iframe>
+        <div class="absolute bottom-0 left-0 right-0 bg-yellow-900/70 p-3 flex justify-between items-center">
+          <div>
+            <p id="tronoTitle" class="font-bold"></p>
+            <p id="tronoStats" class="text-sm"></p>
+          </div>
+          <button id="btnTrono" class="vote-btn bg-yellow-500 hover:bg-yellow-600" disabled>⚡ Impulsar</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- RETADOR -->
+    <section class="mt-12">
+      <h2 class="text-2xl text-center font-bold text-red-400 mb-2">⚔️ EL RETADOR</h2>
+      <div class="relative border-4 border-red-500 rounded-xl flames overflow-hidden">
+        <iframe id="retadorVideo" class="w-full h-64" src="" allowfullscreen></iframe>
+        <div class="absolute bottom-0 left-0 right-0 bg-red-900/70 p-3 flex justify-between items-center">
+          <div>
+            <p id="retadorTitle" class="font-bold"></p>
+            <p id="retadorStats" class="text-sm"></p>
+          </div>
+          <button id="btnRetador" class="vote-btn bg-red-600 hover:bg-red-700" disabled>🔥 Impulsar</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- BOTÓN COLISEO -->
+    <div class="text-center mt-10">
+      <a href="coliseo.html" class="bg-orange-500 hover:bg-orange-600 px-6 py-2 rounded-full font-bold">Ver Coliseo de Postulantes</a>
+    </div>
+
+    <!-- CEMENTERIO -->
+    <section class="mt-16">
+      <h2 class="text-xl text-center font-semibold text-gray-500 mb-2">🪦 EL CEMENTERIO DE CAÍDOS</h2>
+      <div id="graveyard" class="grid grid-cols-2 md:grid-cols-4 gap-4 opacity-60"></div>
+    </section>
+
+    <!-- SUBIR VIDEO -->
+    <section id="uploadSection" class="hidden mt-16 bg-white/10 p-6 rounded-xl">
+      <h2 class="text-lg font-semibold mb-4">Postula tu video (YouTube URL)</h2>
+      <div class="flex flex-col md:flex-row gap-4">
+        <input id="videoURL"  type="text"   placeholder="https://youtu.be/…" class="flex-grow text-black px-3 py-2 rounded" />
+        <input id="videoTitle" type="text"   placeholder="Título"           class="flex-grow text-black px-3 py-2 rounded" />
+        <button id="uploadBtn"  class="bg-green-600 hover:bg-green-700 px-4 py-2 rounded font-bold">Subir</button>
+      </div>
+      <p id="uploadMsg" class="mt-2 text-sm"></p>
+    </section>
+  </main>
+
+  <footer class="text-center text-gray-600 text-sm mt-20 pb-6 select-none">
+    © 2025 OnlyTwo · #ElColiseoNuncaDuerme
+  </footer>
+
+  <!-- Firebase SDK (módulos) + app.js -->
+  <script type="module" src="app.js"></script>
+
+  <script type="module" src="firebase-config.js"></script>
+</body>
+</html>

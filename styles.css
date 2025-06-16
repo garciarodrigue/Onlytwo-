@@ -1,0 +1,17 @@
+/* styles.css – OnlyTwo Coliseo */
+body {
+  background: radial-gradient(circle at top, #111827, #000);
+  font-family: 'Segoe UI', sans-serif;
+  color: #fff;
+}
+.aura   { animation: pulse 2s infinite; }
+@keyframes pulse   { 0%{box-shadow:0 0 15px gold} 50%{box-shadow:0 0 25px #facc15} 100%{box-shadow:0 0 15px gold} }
+.flames { animation: flicker 1s infinite alternate; }
+@keyframes flicker { 0%{filter:brightness(1)} 100%{filter:brightness(1.3)} }
+button.vote-btn {
+  padding: .4rem 1.2rem;
+  border-radius: .5rem;
+  font-weight: 700;
+  transition: transform .1s, background .3s;
+}
+button:active { transform: scale(.95); }
