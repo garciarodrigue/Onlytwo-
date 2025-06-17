@@ -1,75 +1,45 @@
-// upload.js – lógica de autenticación + envío del combatiente
-import {
-  db,
-  auth,
-  provider,
-  signInWithPopup,
-  onAuthStateChanged
-} from "./firebase-config.js";
+// upload.js
+import { db, auth, provider, signInWithPopup, onAuthStateChanged } from './firebase-config.js';
+import { collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
-import {
-  collection,
-  addDoc,
-  serverTimestamp
-} from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+const loginBtn      = document.getElementById('loginBtn');
+const loginSection  = document.getElementById('loginSection');
+const uploadSection = document.getElementById('uploadSection');
+const uploadForm    = document.getElementById('uploadForm');
+const uploadMessage = document.getElementById('uploadMessage');
 
-// Referencias al DOM
-const loginBtn       = document.getElementById("loginBtn");
-const loginSection   = document.getElementById("loginSection");
-const uploadSection  = document.getElementById("uploadSection");
-const uploadForm     = document.getElementById("uploadForm");
-const uploadMessage  = document.getElementById("uploadMessage");
+// === Iniciar sesión con Google ===
+loginBtn.onclick = () => signInWithPopup(auth, provider);
 
-// Iniciar sesión con Google
-loginBtn.addEventListener("click", async () => {
-  try {
-    await signInWithPopup(auth, provider);
-  } catch (err) {
-    console.error("Error de autenticación:", err);
-    alert("No se pudo iniciar sesión.");
-  }
-});
-
-// Escucha cambios de sesión para mostrar/ocultar formulario
-onAuthStateChanged(auth, (user) => {
+onAuthStateChanged(auth, user => {
   if (user) {
-    // Usuario logueado → mostrar formulario
-    loginSection.style.display  = "none";
-    uploadSection.classList.remove("hidden");
-  } else {
-    // No logueado → ocultar formulario
-    loginSection.style.display  = "block";
-    uploadSection.classList.add("hidden");
+    loginSection.classList.add('hidden');
+    uploadSection.classList.remove('hidden');
   }
 });
 
-// Enviar nuevo combatiente
-uploadForm.addEventListener("submit", async (e) => {
+// === Subida de combatiente ===
+uploadForm.onsubmit = async e => {
   e.preventDefault();
 
-  const title = document.getElementById("title").value.trim();
-  const url   = document.getElementById("url").value.trim();
+  const title = uploadForm.title.value.trim();
+  const url   = uploadForm.url.value.trim();
 
-  if (!title || !url) {
-    return alert("Completa los campos requeridos.");
-  }
+  if (!title || !url) return alert('Completa todos los campos');
+
+  const ytID = url.match(/(?:v=|youtu\.be\/)([\w-]+)/)?.[1];
+  if (!ytID) return alert('URL de YouTube inválida');
 
   try {
-    await addDoc(collection(db, "postulants"), {
+    await addDoc(collection(db, 'postulants'), {
       title,
-      url,
-      impulses: 0,
-      status: "pending",
-      timestamp: serverTimestamp(),
-      submitted_by: auth.currentUser.uid
+      url: `https://www.youtube.com/embed/${ytID}`,
+      created: serverTimestamp()
     });
-
-    uploadMessage.textContent = "¡Combatiente enviado con éxito!";
-    uploadMessage.classList.remove("hidden");
+    uploadMessage.classList.remove('hidden');
     uploadForm.reset();
-    setTimeout(() => uploadMessage.classList.add("hidden"), 4000);
   } catch (err) {
-    console.error("Error al guardar:", err);
-    alert("Ocurrió un error al enviar el combatiente.");
+    console.error('❌ Error al subir:', err);
+    alert('Error al subir combatiente.');
   }
-});
+};
