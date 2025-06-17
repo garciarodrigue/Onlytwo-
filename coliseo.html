@@ -2,79 +2,74 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Coliseo de Postulantes – OnlyTwo</title>
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
 </head>
 <body class="bg-gray-900 text-white font-sans min-h-screen flex flex-col">
   <header class="py-6 text-center bg-black/40 select-none">
-    <h1 class="text-3xl font-extrabold tracking-wider text-purple-400">COLISEO DE POSTULANTES</h1>
+    <h1 class="text-3xl font-extrabold tracking-wider text-purple-400">COLISEO DE POSTULANTES</h1>
     <p class="text-gray-400 text-sm mt-1">Elige quién desafiará al trono</p>
-    <button id="loginBtn" class="mt-4 bg-blue-600 hover:bg-blue-700 px-4 py-1 rounded hidden">
-      Iniciar sesión (admin)
-    </button>
-    <button id="logoutBtn" class="mt-4 bg-red-600 hover:bg-red-700 px-4 py-1 rounded hidden">
-      Cerrar sesión
-    </button>
   </header>
 
   <main id="grid" class="flex-grow p-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"></main>
 
-  <footer class="py-4 text-center text-gray-500 text-xs select-none">
-    © 2025 OnlyTwo · SYPH//NVX
-  </footer>
+  <footer class="py-4 text-center text-gray-500 text-xs select-none">© 2025 OnlyTwo · SYPH//NVX</footer>
 
   <!-- Firebase + lógica -->
   <script type="module">
-    /* ============ Imports globales ============ */
-    import { db, auth, provider, signInWithPopup, onAuthStateChanged } from './firebase-config.js';
-    import { collection, getDocs, deleteDoc, doc, updateDoc, where, query } from
-            'https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js';
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+    import {
+      getFirestore,
+      collection, getDocs, deleteDoc, doc, updateDoc, query, where
+    } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
-    /* ============ Utilidades ============ */
-    const grid      = document.getElementById('grid');
-    const loginBtn  = document.getElementById('loginBtn');
-    const logoutBtn = document.getElementById('logoutBtn');
+    const firebaseConfig = {
+      apiKey:             "AIzaSyD-kpBZZq3E9Etg0m6DZMKtnPQ0azEZudA",
+      authDomain:         "onlytwo-2ca52.firebaseapp.com",
+      projectId:          "onlytwo-2ca52",
+      storageBucket:      "onlytwo-2ca52.appspot.com",
+      messagingSenderId:  "1077612765605",
+      appId:              "1:1077612765605:web:d7befb5b2d8a8d433cc84c",
+      measurementId:      "G-H3BFMF6MB2"
+    };
+    const app = initializeApp(firebaseConfig);
+    const db  = getFirestore(app);
 
+    const grid = document.getElementById('grid');
+
+    // Convierte URL de YouTube a formato embed
     const toEmbed = url => {
-      const m = url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\\?v=|v\\/|embed\\/|shorts\\/))([\\w-]{11})/);
-      return m ? `https://www.youtube.com/embed/${m[1]}` : url;
+      const cleaned = url.split('?')[0];
+      const m = cleaned.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|v\/|embed\/|shorts\/))([\w-]{11})/);
+      return m ? `https://www.youtube.com/embed/${m[1]}` : '';
     };
 
-    /* ============ Autenticación (opcional admin) ============ */
-    loginBtn.onclick  = () => signInWithPopup(auth, provider);
-    logoutBtn.onclick = () => auth.signOut();
-
-    onAuthStateChanged(auth, user => {
-      // Solo admins podrían ver los botones; quítalo si no quieres restricción
-      loginBtn.classList.toggle('hidden', !!user);
-      logoutBtn.classList.toggle('hidden', !user);
-      loadPostulants();
-    });
-
-    /* ============ Carga de postulantes ============ */
+    // Cargar postulantes
     async function loadPostulants () {
       grid.innerHTML = '<p class="col-span-full text-center text-gray-400">Cargando…</p>';
-      // Filtra por status "retador" (cámbialo a "pendiente" si así los marcas)
-      const q    = query(collection(db, 'postulants'), where('status', '==', 'retador'));
+      
+      const q = query(collection(db, 'postulants'), where('status', '==', 'retador'));
       const snap = await getDocs(q);
 
-      grid.innerHTML = ''; // limpiamos
+      grid.innerHTML = ''; // limpiar
 
       if (snap.empty) {
-        grid.innerHTML =
-          '<p class="col-span-full text-center text-gray-500">No hay postulantes actualmente.</p>';
+        grid.innerHTML = '<p class="col-span-full text-center text-gray-500">No hay postulantes actualmente.</p>';
         return;
       }
 
       snap.forEach(d => {
         const v = d.data();
+
+        const videoUrl = v.url || v.video_url || '';
+        const embedUrl = toEmbed(videoUrl);
+
         const card = document.createElement('div');
-        card.className =
-          'bg-gray-800 rounded-xl shadow-lg flex flex-col overflow-hidden';
+        card.className = 'bg-gray-800 rounded-xl shadow-lg flex flex-col overflow-hidden';
 
         card.innerHTML = `
-          <iframe src="${toEmbed(v.url)}" class="w-full h-48" allowfullscreen></iframe>
+          <iframe src="${embedUrl}" class="w-full h-48" allowfullscreen></iframe>
           <div class="p-4 flex flex-col flex-grow">
             <h3 class="font-bold text-lg mb-1">${v.title}</h3>
             <p class="text-xs text-gray-400 mb-3">${v.descripcion || ''}</p>
@@ -85,32 +80,36 @@
             </button>
           </div>
         `;
-        card.querySelector('button').onclick = () => makeChallenger(d.id, v);
+
+        card.querySelector('button').onclick = () => makeChallenger(d.id, {
+          title: v.title,
+          url: videoUrl
+        });
+
         grid.appendChild(card);
       });
     }
 
-    /* ============ Promover a retador ============ */
-    async function makeChallenger (docId, video) {
-      if (!auth.currentUser) return alert('Inicia sesión como admin');
-      if (!confirm(`¿Convertir «${video.title}» en retador?`)) return;
+    // Convertir postulante en retador
+    async function makeChallenger(docId, video) {
+      if (!confirm(`¿Convertir "${video.title}" en retador?`)) return;
 
-      // 1. Actualizar challenger en arena/battle
       await updateDoc(doc(db, 'arena', 'battle'), {
         challenger: {
           title: video.title,
-          url:   toEmbed(video.url),
+          url: video.url,
           votes: 0,
-          wins:  0
+          wins: 0
         }
       });
 
-      // 2. Eliminar el postulante (o cambia su status si prefieres)
       await deleteDoc(doc(db, 'postulants', docId));
 
       alert('¡Retador asignado!');
       location.href = 'index.html';
     }
+
+    loadPostulants();
   </script>
 </body>
 </html>
