@@ -106,7 +106,7 @@ async function renderArena() {
 
     div.innerHTML = `
       <iframe src="${fixedUrl}" class="w-full h-24" allowfullscreen></iframe>
-      <p class="text-xs text-center mt-1">${v.title} – ${v.date || '???'}</p>
+      <p class="text-xs text-center mt-1">${v.title} – ${v.date ? v.date : 'Sin fecha'}</p>
     `;
     elGraveyard.appendChild(div);
   });
